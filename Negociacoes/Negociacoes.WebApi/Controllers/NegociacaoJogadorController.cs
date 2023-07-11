@@ -21,7 +21,10 @@ namespace Negociacoes.WebApi.Controllers
         [HttpGet("negotiations/{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var negociacao = await _applicationContext.Set<NegociacaoJogador>().FirstOrDefaultAsync(x => x.Id == id);
+            var negociacao = await _applicationContext.Set<NegociacaoJogador>()
+                .Include(x => x.ComposicaoTime)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
             var negociacaoRetorno = NegociacaoJogadorDto.GetFromNegociacaoJogador(negociacao);
 
             return Ok(negociacaoRetorno);
@@ -30,16 +33,16 @@ namespace Negociacoes.WebApi.Controllers
         [HttpPost("negotiations")]
         public async Task<IActionResult> Post(PostNegociacaoJogadorDto postNegociacaoJogadorDto)
         {
-            var timeDestino = await _applicationContext.Set<Time>().FirstOrDefaultAsync(x => x.Id == postNegociacaoJogadorDto.IdTimeDestino);
+            var composicaoTime = await _applicationContext.Set<ComposicaoTime>().FirstOrDefaultAsync(x => x.Id == postNegociacaoJogadorDto.IdComposicaoTime);
 
-            if (timeDestino == null)
+            if (composicaoTime == null)
             {
-                return BadRequest($"Time destino ({postNegociacaoJogadorDto.IdTimeDestino}) nao encontrado na base");
+                return BadRequest($"composicao Time ({postNegociacaoJogadorDto.IdComposicaoTime}) nao encontrado na base");
             }
 
-            var jogadoresAtuaisJson = JsonConvert.SerializeObject(postNegociacaoJogadorDto.JogadoresAtuais);
-            var jogadoresNovosJson = JsonConvert.SerializeObject(postNegociacaoJogadorDto.JogadoresNovos);
-            var jogadoresRemovidosJson = JsonConvert.SerializeObject(postNegociacaoJogadorDto.JogadoresRemovidos);
+            var jogadoresAtuaisDto = postNegociacaoJogadorDto.JogadoresAtuais.Select(x => new JogadorDataDto { IdJogador = x.Id, Salario = x.Salario }).ToList();
+            var jogadoresNovosDto = postNegociacaoJogadorDto.JogadoresNovos.Select(x => new IntData { IdJogador = x }).ToList();
+            var jogadoresRemovidosDto = postNegociacaoJogadorDto.JogadoresRemovidos.Select(x => new IntData { IdJogador = x }).ToList();
 
             var negociacao = new NegociacaoJogador
             {
@@ -47,10 +50,13 @@ namespace Negociacoes.WebApi.Controllers
                 TipoNegociacaoJogador = TipoNegociacaoJogador.EM_NEGOCIACAO,
                 DataContratoProposta = postNegociacaoJogadorDto.DataContratoProposta,
                 Observacoes = postNegociacaoJogadorDto.Observacoes,
-                IdTimeDestino = timeDestino.Id,
-                JogadoresAtuais = jogadoresAtuaisJson,
-                JogadoresNovos = jogadoresNovosJson,
-                JogadoresRemovidos = jogadoresRemovidosJson
+                IdComposicaoTime = composicaoTime.Id,
+                NegociacaoJogadorJson = new NegociacaoJogadorJson
+                {
+                    JogadoresAtuais = jogadoresAtuaisDto,
+                    JogadoresNovos = jogadoresNovosDto,
+                    JogadoresRemovidos = jogadoresRemovidosDto
+                }
             };
 
             var negociacaoBase = await _applicationContext.AddAsync(negociacao);

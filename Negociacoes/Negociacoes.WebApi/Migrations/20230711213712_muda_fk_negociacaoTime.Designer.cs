@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Negociacoes.WebApi.Infra;
 
@@ -11,9 +12,11 @@ using Negociacoes.WebApi.Infra;
 namespace Negociacoes.WebApi.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230711213712_muda_fk_negociacaoTime")]
+    partial class muda_fk_negociacaoTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,98 +145,77 @@ namespace Negociacoes.WebApi.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_negociacao_jogador_composicao_time_composicao_time_id");
 
-                    b.OwnsOne("Negociacoes.WebApi.Models.Entities.NegociacaoJogadorJson", "NegociacaoJogadorJson", b1 =>
+                    b.OwnsOne("Negociacoes.WebApi.Models.Entities.NegociacaoJogador.JogadoresNovos#List", "JogadoresNovos", b1 =>
+                        {
+                            b1.Property<int>("NegociacaoJogadorId")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("Capacity")
+                                .HasColumnType("int");
+
+                            b1.HasKey("NegociacaoJogadorId")
+                                .HasName("pk_negociacao_jogador");
+
+                            b1.ToTable("negociacao_jogador");
+
+                            b1.ToJson("jogadores_novos");
+
+                            b1.WithOwner()
+                                .HasForeignKey("NegociacaoJogadorId")
+                                .HasConstraintName("fk_negociacao_jogador_negociacao_jogador_negociacao_jogador_id");
+                        });
+
+                    b.OwnsOne("System.Collections.Generic.List<int>", "JogadoresRemovidos", b1 =>
                         {
                             b1.Property<int>("NegociacaoJogadorId")
                                 .HasColumnType("int")
                                 .HasColumnName("id");
 
+                            b1.Property<int>("Capacity")
+                                .HasColumnType("int")
+                                .HasColumnName("jogadores_removidos_capacity");
+
                             b1.HasKey("NegociacaoJogadorId");
 
                             b1.ToTable("negociacao_jogador");
 
-                            b1.ToJson("negociacao_jogador_json");
+                            b1.ToJson("jogadores_removidos");
 
                             b1.WithOwner()
                                 .HasForeignKey("NegociacaoJogadorId")
                                 .HasConstraintName("fk_negociacao_jogador_negociacao_jogador_id");
+                        });
 
-                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.JogadorDataDto", "JogadoresAtuais", b2 =>
-                                {
-                                    b2.Property<int>("NegociacaoJogadorJsonNegociacaoJogadorId")
-                                        .HasColumnType("int");
+                    b.OwnsOne("System.Collections.Generic.List<Negociacoes.WebApi.Models.Entities.Jogador>", "JogadoresAtuais", b1 =>
+                        {
+                            b1.Property<int>("NegociacaoJogadorId")
+                                .HasColumnType("int")
+                                .HasColumnName("id");
 
-                                    b2.Property<int>("Id")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("int");
+                            b1.Property<int>("Capacity")
+                                .HasColumnType("int")
+                                .HasColumnName("jogadores_atuais_capacity");
 
-                                    b2.Property<decimal>("Salario")
-                                        .HasColumnType("decimal(18,2)");
+                            b1.HasKey("NegociacaoJogadorId");
 
-                                    b2.HasKey("NegociacaoJogadorJsonNegociacaoJogadorId", "Id")
-                                        .HasName("pk_negociacao_jogador");
+                            b1.ToTable("negociacao_jogador");
 
-                                    b2.ToTable("negociacao_jogador");
+                            b1.ToJson("jogadores_atuais");
 
-                                    b2.HasAnnotation("Relational:JsonPropertyName", "jogadores_atuais");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("NegociacaoJogadorJsonNegociacaoJogadorId")
-                                        .HasConstraintName("fk_negociacao_jogador_negociacao_jogador_negociacao_jogador_json_negociacao_jogador_id");
-                                });
-
-                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.IntData", "JogadoresNovos", b2 =>
-                                {
-                                    b2.Property<int>("NegociacaoJogadorJsonNegociacaoJogadorId")
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("Id")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("int");
-
-                                    b2.HasKey("NegociacaoJogadorJsonNegociacaoJogadorId", "Id")
-                                        .HasName("pk_negociacao_jogador");
-
-                                    b2.ToTable("negociacao_jogador");
-
-                                    b2.HasAnnotation("Relational:JsonPropertyName", "jogadores_novos");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("NegociacaoJogadorJsonNegociacaoJogadorId")
-                                        .HasConstraintName("fk_negociacao_jogador_negociacao_jogador_negociacao_jogador_json_negociacao_jogador_id");
-                                });
-
-                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.IntData", "JogadoresRemovidos", b2 =>
-                                {
-                                    b2.Property<int>("NegociacaoJogadorJsonNegociacaoJogadorId")
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("Id")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("int");
-
-                                    b2.HasKey("NegociacaoJogadorJsonNegociacaoJogadorId", "Id")
-                                        .HasName("pk_negociacao_jogador");
-
-                                    b2.ToTable("negociacao_jogador");
-
-                                    b2.HasAnnotation("Relational:JsonPropertyName", "jogadores_removidos");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("NegociacaoJogadorJsonNegociacaoJogadorId")
-                                        .HasConstraintName("fk_negociacao_jogador_negociacao_jogador_negociacao_jogador_json_negociacao_jogador_id");
-                                });
-
-                            b1.Navigation("JogadoresAtuais");
-
-                            b1.Navigation("JogadoresNovos");
-
-                            b1.Navigation("JogadoresRemovidos");
+                            b1.WithOwner()
+                                .HasForeignKey("NegociacaoJogadorId")
+                                .HasConstraintName("fk_negociacao_jogador_negociacao_jogador_id");
                         });
 
                     b.Navigation("ComposicaoTime");
 
-                    b.Navigation("NegociacaoJogadorJson")
+                    b.Navigation("JogadoresAtuais")
+                        .IsRequired();
+
+                    b.Navigation("JogadoresNovos")
+                        .IsRequired();
+
+                    b.Navigation("JogadoresRemovidos")
                         .IsRequired();
                 });
 

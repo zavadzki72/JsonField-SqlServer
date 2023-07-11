@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Negociacoes.WebApi.Enumeradores;
 using Negociacoes.WebApi.Infra;
 using Negociacoes.WebApi.Models.Dtos;
 using Negociacoes.WebApi.Models.Entities;

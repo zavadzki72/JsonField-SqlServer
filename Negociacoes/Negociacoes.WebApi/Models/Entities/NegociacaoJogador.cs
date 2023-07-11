@@ -9,11 +9,27 @@ namespace Negociacoes.WebApi.Models.Entities
         public TipoNegociacaoJogador TipoNegociacaoJogador { get; set; }
         public DateTime DataContratoProposta { get; set; }
         public string Observacoes { get; set; }
-        public int IdTimeDestino { get; set; }
-        public string JogadoresAtuais { get; set; }
-        public string JogadoresNovos { get; set; }
-        public string JogadoresRemovidos { get; set; }
+        public int IdComposicaoTime { get; set; }
+        public NegociacaoJogadorJson NegociacaoJogadorJson { get; set; }
 
-        public virtual Time TimeDestino { get; set; }
+        public virtual ComposicaoTime ComposicaoTime { get; set; }
+    }
+
+    public class NegociacaoJogadorJson
+    {
+        public List<JogadorDataDto> JogadoresAtuais { get; set; }
+        public List<IntData> JogadoresNovos { get; set; }
+        public List<IntData> JogadoresRemovidos { get; set; }
+    }
+
+    public class JogadorDataDto
+    {
+        public int IdJogador { get; set; }
+        public decimal Salario { get; set; }
+    }
+
+    public class IntData
+    {
+        public int IdJogador { get; set; }
     }
 }

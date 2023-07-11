@@ -1,5 +1,4 @@
 ﻿using Negociacoes.WebApi.Models.Entities;
-using Newtonsoft.Json;
 
 namespace Negociacoes.WebApi.Models.Dtos
 {
@@ -8,23 +7,23 @@ namespace Negociacoes.WebApi.Models.Dtos
         public int Id { get; set; }
         public DateTime DataContratoProposta { get; set; }
         public string Observacoes { get; set; }
-        public Time TimeDestino { get; set; }
-        public List<JogadorDto> JogadoresAtuais { get; set; }
+        public ComposicaoTime ComposicaoTime { get; set; }
+        public List<JogadorDataDto> JogadoresAtuais { get; set; }
         public List<int> JogadoresNovos { get; set; }
         public List<int> JogadoresRemovidos { get; set; }
 
         public static NegociacaoJogadorDto GetFromNegociacaoJogador(NegociacaoJogador negociacaoJogador)
         {
-            var jogadoresAtuais = JsonConvert.DeserializeObject<List<JogadorDto>>(negociacaoJogador.JogadoresAtuais);
-            var jogadoresNovos = JsonConvert.DeserializeObject<List<int>>(negociacaoJogador.JogadoresNovos);
-            var jogadoresRemovidos = JsonConvert.DeserializeObject<List<int>>(negociacaoJogador.JogadoresRemovidos);
+            var jogadoresAtuais = negociacaoJogador.NegociacaoJogadorJson.JogadoresAtuais.Select(x => new JogadorDataDto { IdJogador = x.IdJogador, Salario = x.Salario }).ToList();
+            var jogadoresNovos = negociacaoJogador.NegociacaoJogadorJson.JogadoresNovos.Select(x => x.IdJogador).ToList();
+            var jogadoresRemovidos = negociacaoJogador.NegociacaoJogadorJson.JogadoresRemovidos.Select(x => x.IdJogador).ToList();
 
             return new NegociacaoJogadorDto
             {
                 Id = negociacaoJogador.Id,
                 DataContratoProposta = negociacaoJogador.DataContratoProposta,
                 Observacoes = negociacaoJogador.Observacoes,
-                TimeDestino = negociacaoJogador.TimeDestino,
+                ComposicaoTime = negociacaoJogador.ComposicaoTime,
                 JogadoresAtuais = jogadoresAtuais,
                 JogadoresNovos = jogadoresNovos,
                 JogadoresRemovidos = jogadoresRemovidos

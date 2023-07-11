@@ -14,21 +14,22 @@ namespace Negociacoes.WebApi.Infra.Maps
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(x => x.IdTimeDestino)
+            builder.Property(x => x.IdComposicaoTime)
                 .IsRequired();
 
-            builder.Property(x => x.JogadoresAtuais)
-                .HasJsonPropertyName("jogadores_atuais");
-
-            builder.Property(x => x.JogadoresNovos)
-                .HasJsonPropertyName("jogadores_novos");
-
-            builder.Property(x => x.JogadoresRemovidos)
-                .HasJsonPropertyName("jogadores_removidos");
-
-            builder.HasOne(x => x.TimeDestino)
+            builder.HasOne(x => x.ComposicaoTime)
                 .WithMany()
-                .HasForeignKey(x => x.IdTimeDestino);
+                .HasForeignKey(x => x.IdComposicaoTime);
+
+            builder.OwnsOne(
+                negociacao => negociacao.NegociacaoJogadorJson, ownedNavigationBuilder => 
+                {
+                    ownedNavigationBuilder.ToJson("negociacao_jogador_json");
+                    ownedNavigationBuilder.OwnsMany(metadata => metadata.JogadoresAtuais).HasJsonPropertyName("jogadores_atuais");
+                    ownedNavigationBuilder.OwnsMany(metadata => metadata.JogadoresNovos).HasJsonPropertyName("jogadores_novos");
+                    ownedNavigationBuilder.OwnsMany(metadata => metadata.JogadoresRemovidos).HasJsonPropertyName("jogadores_removidos");
+                }
+            );
         }
     }
 }
