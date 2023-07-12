@@ -141,7 +141,7 @@ namespace Negociacoes.WebApi.Controllers
         [HttpPost("load-compositions/{loadCompositionId}/negotiations")]
         public async Task<IActionResult> Post(int loadCompositionId, [FromBody] RegisterNegociacaoComposicaoCargaDto registerNegociacaoComposicaoCargaDto)
         {
-            var composicao = await _applicationContext.Set<NegociacaoComposicaoCarga>().FirstOrDefaultAsync(x => x.Id == loadCompositionId);
+            var composicao = await _applicationContext.Set<ComposicaoCarga>().FirstOrDefaultAsync(x => x.Id == loadCompositionId);
 
             if(composicao == null)
             {
@@ -171,6 +171,49 @@ namespace Negociacoes.WebApi.Controllers
                 }
             };
 
+            composicao.Situacao = SituacaoComposicaoCarga.EM_NEGOCIACAO;
+
+            var negociacaoBase = await _applicationContext.AddAsync(negociacao);
+            await _applicationContext.SaveChangesAsync();
+
+            return Ok(negociacaoBase.Entity.Id);
+        }
+
+        [HttpPost("load-compositions/{loadCompositionId}/negotiations:emergency")]
+        public async Task<IActionResult> PostEmergency(int loadCompositionId, [FromBody] RegisterNegociacaoComposicaoCargaDto registerNegociacaoComposicaoCargaDto)
+        {
+            var composicao = await _applicationContext.Set<ComposicaoCarga>().FirstOrDefaultAsync(x => x.Id == loadCompositionId);
+
+            if(composicao == null)
+            {
+                return BadRequest($"composicao ({loadCompositionId}) nao encontrado na base");
+            }
+
+            var pedidosAtuaisDto = registerNegociacaoComposicaoCargaDto.PedidosAtuais.Select(x => new NegociacaoPedidoJson { IdPedido = x.IdPedido, Quantidade = x.Quantidade }).ToList();
+            var sugestoesGeradasPorNegociacaoDto = registerNegociacaoComposicaoCargaDto.SugestoesGeradasPorNegociacao.Select(x => new NegociacaoSugestaoJson { Item = x.Item, Quantidade = x.Quantidade }).ToList();
+            var pedidosNovosDto = registerNegociacaoComposicaoCargaDto.PedidosNovos.Select(x => new IntPedido { IdPedido = x }).ToList();
+            var pedidosRemovidosDto = registerNegociacaoComposicaoCargaDto.PedidosRemovidos.Select(x => new IntPedido { IdPedido = x }).ToList();
+            var sugestoesNovasDto = registerNegociacaoComposicaoCargaDto.SugestoesNovas.Select(x => new IntSugestao { IdSugestao = x }).ToList();
+
+            var negociacao = new NegociacaoComposicaoCarga
+            {
+                DataEvento = DateTime.Now,
+                IdComposicaoCarga = composicao.Id,
+                Observacao = "Composicao carga em negociação emergencial",
+                TipoNegociacao = TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_EM_NEGOCIACAO_EMERGENCIAL,
+                TipoUsuarioResponsavelProximaEtapa = TipoUsuario.FORNECEDOR,
+                MetaData = new NegociacaoComposicaoCargaJson
+                {
+                    PedidosAtuais = pedidosAtuaisDto,
+                    SugestoesGeradasPorNegociacao = sugestoesGeradasPorNegociacaoDto,
+                    PedidosNovos = pedidosNovosDto,
+                    PedidosRemovidos = pedidosRemovidosDto,
+                    SugestoesNovas = sugestoesNovasDto
+                }
+            };
+
+            composicao.Situacao = SituacaoComposicaoCarga.EM_NEGOCIACAO_EMERGENCIAL;
+
             var negociacaoBase = await _applicationContext.AddAsync(negociacao);
             await _applicationContext.SaveChangesAsync();
 
@@ -191,6 +234,13 @@ namespace Negociacoes.WebApi.Controllers
 
             await ProcessaPedidoAceiteNegociacao(negociacao);
             await ProcessaSugestoesAceiteNegociacao(negociacao);
+
+            var tipoNegociacao = negociacao.ComposicaoCarga.Situacao == SituacaoComposicaoCarga.EM_NEGOCIACAO ? TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_EM_NEGOCIACAO_ACEITA : TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_EM_NEGOCIACAO_EMERGENCIAL_ACEITA;
+            var obsNegociacao = negociacao.ComposicaoCarga.Situacao == SituacaoComposicaoCarga.EM_NEGOCIACAO ? "Negociacao de composicao de carga aceita" : "Negociacao emergencial de composicao de carga aceita";
+
+            negociacao.ComposicaoCarga.Situacao = SituacaoComposicaoCarga.ACEITA;
+
+            await AddNegociacaoComposicaoCarga(negociacao.IdComposicaoCarga, tipoNegociacao, TipoUsuario.PRODUTO, obsNegociacao);
 
             await _applicationContext.SaveChangesAsync();
 
@@ -243,6 +293,10 @@ namespace Negociacoes.WebApi.Controllers
                 var pedido = Pedido.GetFromSugestao(sugestao);
                 pedido.DataEntrega = negociacao.ComposicaoCarga.DataEntrega;
                 pedido.IdComposicaoCarga = negociacao.IdComposicaoCarga;
+
+                sugestao.Status = StatusSugestao.ACEITA;
+
+                await _applicationContext.AddAsync(pedido);
             }
 
             foreach(var sugestao in sugestoesParaCriar)
