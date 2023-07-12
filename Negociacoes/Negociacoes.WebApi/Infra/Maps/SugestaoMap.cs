@@ -4,9 +4,9 @@ using Negociacoes.WebApi.Models.Entities;
 
 namespace Negociacoes.WebApi.Infra.Maps
 {
-    public class JogadorMap : IEntityTypeConfiguration<Jogador>
+    public class SugestaoMap : IEntityTypeConfiguration<Sugestao>
     {
-        public void Configure(EntityTypeBuilder<Jogador> builder)
+        public void Configure(EntityTypeBuilder<Sugestao> builder)
         {
             builder.HasKey(x => x.Id);
 
@@ -14,11 +14,16 @@ namespace Negociacoes.WebApi.Infra.Maps
                 .ValueGeneratedOnAdd()
                 .IsRequired();
 
-            builder.Property(x => x.Nome)
-                .HasMaxLength(100)
+            builder.Property(x => x.Status)
                 .IsRequired();
 
-            builder.Property(x => x.Salario)
+            builder.Property(x => x.Quantidade)
+                .IsRequired();
+
+            builder.Property(x => x.Item)
+                .IsRequired();
+
+            builder.Property(x => x.DataEntrega)
                 .IsRequired();
         }
     }
