@@ -4,9 +4,9 @@ using Negociacoes.WebApi.Models.Entities;
 
 namespace Negociacoes.WebApi.Infra.Maps
 {
-    public class TimeMap : IEntityTypeConfiguration<Time>
+    public class UsuarioMap : IEntityTypeConfiguration<Usuario>
     {
-        public void Configure(EntityTypeBuilder<Time> builder)
+        public void Configure(EntityTypeBuilder<Usuario> builder)
         {
             builder.HasKey(x => x.Id);
 
@@ -15,14 +15,13 @@ namespace Negociacoes.WebApi.Infra.Maps
                 .IsRequired();
 
             builder.Property(x => x.Nome)
-                .HasMaxLength(100)
                 .IsRequired();
 
-            builder.Property(x => x.IdComposicaoTime);
+            builder.Property(x => x.Email)
+                .IsRequired();
 
-            builder.HasOne(x => x.ComposicaoTime)
-                .WithMany()
-                .HasForeignKey(x => x.IdComposicaoTime);
+            builder.Property(x => x.TipoUsuario)
+                .IsRequired();
         }
     }
 }
