@@ -36,6 +36,7 @@ namespace Negociacoes.WebApi.Infra.Maps
                     ownedNavigationBuilder.OwnsMany(metadata => metadata.PedidosNovos).HasJsonPropertyName("pedidos_novos");
                     ownedNavigationBuilder.OwnsMany(metadata => metadata.PedidosRemovidos).HasJsonPropertyName("pedidos_removidos");
                     ownedNavigationBuilder.OwnsMany(metadata => metadata.SugestoesNovas).HasJsonPropertyName("sugestoes_novas");
+                    ownedNavigationBuilder.OwnsMany(metadata => metadata.SugestoesGeradasPorNegociacao).HasJsonPropertyName("sugestoes_geradas_por_negociacao");
                 }
             );
         }

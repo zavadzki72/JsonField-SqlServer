@@ -93,6 +93,27 @@ namespace Negociacoes.WebApi.Controllers
             return NoContent();
         }
 
+        [HttpPost("load-compositions/{id}/cancel")]
+        public async Task<IActionResult> Cancelar(int id)
+        {
+            var composicao = await _applicationContext.Set<ComposicaoCarga>().FirstOrDefaultAsync(x => x.Id == id);
+
+            if(composicao == null)
+            {
+                return BadRequest($"Composicao com o Id: {id} nao encontrado na base");
+            }
+
+            composicao.Situacao = SituacaoComposicaoCarga.CANCELADA;
+
+            _applicationContext.Update(composicao);
+
+            await AddNegociacaoComposicaoCarga(composicao.Id, TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_CANCELADA, TipoUsuario.PRODUTO, "Composição carga cancelada");
+
+            await _applicationContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         [HttpGet("load-compositions/{loadCompositionId}/negotiations")]
         public async Task<IActionResult> Get(int loadCompositionId)
         {
@@ -128,6 +149,7 @@ namespace Negociacoes.WebApi.Controllers
             }
 
             var pedidosAtuaisDto = registerNegociacaoComposicaoCargaDto.PedidosAtuais.Select(x => new NegociacaoPedidoJson { IdPedido = x.IdPedido, Quantidade = x.Quantidade }).ToList();
+            var sugestoesGeradasPorNegociacaoDto = registerNegociacaoComposicaoCargaDto.SugestoesGeradasPorNegociacao.Select(x => new NegociacaoSugestaoJson { Item = x.Item, Quantidade = x.Quantidade }).ToList();
             var pedidosNovosDto = registerNegociacaoComposicaoCargaDto.PedidosNovos.Select(x => new IntPedido { IdPedido = x }).ToList();
             var pedidosRemovidosDto = registerNegociacaoComposicaoCargaDto.PedidosRemovidos.Select(x => new IntPedido { IdPedido = x }).ToList();
             var sugestoesNovasDto = registerNegociacaoComposicaoCargaDto.SugestoesNovas.Select(x => new IntSugestao { IdSugestao = x }).ToList();
@@ -142,6 +164,7 @@ namespace Negociacoes.WebApi.Controllers
                 MetaData = new NegociacaoComposicaoCargaJson
                 {
                     PedidosAtuais = pedidosAtuaisDto,
+                    SugestoesGeradasPorNegociacao = sugestoesGeradasPorNegociacaoDto,
                     PedidosNovos = pedidosNovosDto,
                     PedidosRemovidos = pedidosRemovidosDto,
                     SugestoesNovas = sugestoesNovasDto
@@ -166,7 +189,75 @@ namespace Negociacoes.WebApi.Controllers
                 return BadRequest($"Negociacao com o id: {negotiationId} nao encontrada na base");
             }
 
-            throw new NotImplementedException();
+            await ProcessaPedidoAceiteNegociacao(negociacao);
+            await ProcessaSugestoesAceiteNegociacao(negociacao);
+
+            await _applicationContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private async Task ProcessaPedidoAceiteNegociacao(NegociacaoComposicaoCarga negociacao)
+        {
+            var metaData = negociacao.MetaData;
+
+            var pedidosParaAtualizar = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosAtuais.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
+            var pedidosParaAdicionar = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosNovos.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
+            var pedidosParaRemover = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosRemovidos.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
+
+            foreach(var pedido in pedidosParaAtualizar)
+            {
+                var pedidoReferencia = metaData.PedidosAtuais.First(x => x.IdPedido == pedido.Id);
+
+                pedido.Quantidade = pedidoReferencia.Quantidade;
+                pedido.DataEntrega = negociacao.ComposicaoCarga.DataEntrega;
+            }
+
+            foreach(var pedido in pedidosParaAdicionar)
+            {
+                var pedidoReferencia = metaData.PedidosNovos.First(x => x.IdPedido == pedido.Id);
+
+                pedido.DataEntrega = negociacao.ComposicaoCarga.DataEntrega;
+                pedido.IdComposicaoCarga = negociacao.IdComposicaoCarga;
+            }
+
+            foreach(var pedido in pedidosParaRemover)
+            {
+                var pedidoReferencia = metaData.PedidosRemovidos.First(x => x.IdPedido == pedido.Id);
+
+                pedido.IdComposicaoCarga = null;
+            }
+        }
+
+        private async Task ProcessaSugestoesAceiteNegociacao(NegociacaoComposicaoCarga negociacao)
+        {
+            var metaData = negociacao.MetaData;
+            
+            var sugestoesParaAdicionar = await (from s in _applicationContext.Set<Sugestao>() where metaData.SugestoesNovas.Select(x => x.IdSugestao).Contains(s.Id) select s).ToListAsync();
+            var sugestoesParaCriar = metaData.SugestoesGeradasPorNegociacao.ToList();
+
+            foreach(var sugestao in sugestoesParaAdicionar)
+            {
+                var sugestaoReferencia = metaData.SugestoesNovas.First(x => x.IdSugestao == sugestao.Id);
+
+                var pedido = Pedido.GetFromSugestao(sugestao);
+                pedido.DataEntrega = negociacao.ComposicaoCarga.DataEntrega;
+                pedido.IdComposicaoCarga = negociacao.IdComposicaoCarga;
+            }
+
+            foreach(var sugestao in sugestoesParaCriar)
+            {
+                var pedido = new Pedido
+                {
+                    DataEntrega = negociacao.ComposicaoCarga.DataEntrega,
+                    IdComposicaoCarga = negociacao.IdComposicaoCarga,
+                    Item = sugestao.Item,
+                    Quantidade = sugestao.Quantidade,
+                    Status = StatusPedido.CRIADO
+                };
+
+                await _applicationContext.AddAsync(pedido);
+            }
         }
 
         private async Task AddNegociacaoComposicaoCarga(int idComposicaoCarga, TipoNegociacaoComposicaoCarga tipoNegociacaoComposicaoCarga, TipoUsuario tipoUsuarioResponsavelProximaEtapa, string observacao)

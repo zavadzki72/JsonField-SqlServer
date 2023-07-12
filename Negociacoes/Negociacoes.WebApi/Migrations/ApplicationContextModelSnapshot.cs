@@ -218,7 +218,7 @@ namespace Negociacoes.WebApi.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_negociacao_composicao_carga_composicao_carga_composicao_carga_id");
 
-                    b.OwnsOne("Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCargaJson", "MetaData", b1 =>
+                    b.OwnsOne("Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCarga.MetaData#Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCargaJson", "MetaData", b1 =>
                         {
                             b1.Property<int>("NegociacaoComposicaoCargaId")
                                 .HasColumnType("int")
@@ -226,7 +226,7 @@ namespace Negociacoes.WebApi.Migrations
 
                             b1.HasKey("NegociacaoComposicaoCargaId");
 
-                            b1.ToTable("negociacao_composicao_carga");
+                            b1.ToTable("negociacao_composicao_carga", (string)null);
 
                             b1.ToJson("meta_data");
 
@@ -234,79 +234,7 @@ namespace Negociacoes.WebApi.Migrations
                                 .HasForeignKey("NegociacaoComposicaoCargaId")
                                 .HasConstraintName("fk_negociacao_composicao_carga_negociacao_composicao_carga_id");
 
-                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.IntSugestao", "SugestoesNovas", b2 =>
-                                {
-                                    b2.Property<int>("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("Id")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("IdSugestao")
-                                        .HasColumnType("int");
-
-                                    b2.HasKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId", "Id")
-                                        .HasName("pk_negociacao_composicao_carga");
-
-                                    b2.ToTable("negociacao_composicao_carga");
-
-                                    b2.HasAnnotation("Relational:JsonPropertyName", "sugestoes_novas");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
-                                        .HasConstraintName("fk_negociacao_composicao_carga_negociacao_composicao_carga_negociacao_composicao_carga_json_negociacao_composicao_carga_id");
-                                });
-
-                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.IntPedido", "PedidosNovos", b2 =>
-                                {
-                                    b2.Property<int>("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("Id")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("IdPedido")
-                                        .HasColumnType("int");
-
-                                    b2.HasKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId", "Id")
-                                        .HasName("pk_negociacao_composicao_carga");
-
-                                    b2.ToTable("negociacao_composicao_carga");
-
-                                    b2.HasAnnotation("Relational:JsonPropertyName", "pedidos_novos");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
-                                        .HasConstraintName("fk_negociacao_composicao_carga_negociacao_composicao_carga_negociacao_composicao_carga_json_negociacao_composicao_carga_id");
-                                });
-
-                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.IntPedido", "PedidosRemovidos", b2 =>
-                                {
-                                    b2.Property<int>("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("Id")
-                                        .ValueGeneratedOnAdd()
-                                        .HasColumnType("int");
-
-                                    b2.Property<int>("IdPedido")
-                                        .HasColumnType("int");
-
-                                    b2.HasKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId", "Id")
-                                        .HasName("pk_negociacao_composicao_carga");
-
-                                    b2.ToTable("negociacao_composicao_carga");
-
-                                    b2.HasAnnotation("Relational:JsonPropertyName", "pedidos_removidos");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
-                                        .HasConstraintName("fk_negociacao_composicao_carga_negociacao_composicao_carga_negociacao_composicao_carga_json_negociacao_composicao_carga_id");
-                                });
-
-                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.NegociacaoPedidoJson", "PedidosAtuais", b2 =>
+                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCarga.MetaData#Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCargaJson.PedidosAtuais#Negociacoes.WebApi.Models.Entities.NegociacaoPedidoJson", "PedidosAtuais", b2 =>
                                 {
                                     b2.Property<int>("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
                                         .HasColumnType("int");
@@ -324,9 +252,81 @@ namespace Negociacoes.WebApi.Migrations
                                     b2.HasKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId", "Id")
                                         .HasName("pk_negociacao_composicao_carga");
 
-                                    b2.ToTable("negociacao_composicao_carga");
+                                    b2.ToTable("negociacao_composicao_carga", (string)null);
 
                                     b2.HasAnnotation("Relational:JsonPropertyName", "pedidos_atuais");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
+                                        .HasConstraintName("fk_negociacao_composicao_carga_negociacao_composicao_carga_negociacao_composicao_carga_json_negociacao_composicao_carga_id");
+                                });
+
+                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCarga.MetaData#Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCargaJson.PedidosNovos#Negociacoes.WebApi.Models.Entities.IntPedido", "PedidosNovos", b2 =>
+                                {
+                                    b2.Property<int>("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
+                                        .HasColumnType("int");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("int");
+
+                                    b2.Property<int>("IdPedido")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId", "Id")
+                                        .HasName("pk_negociacao_composicao_carga");
+
+                                    b2.ToTable("negociacao_composicao_carga", (string)null);
+
+                                    b2.HasAnnotation("Relational:JsonPropertyName", "pedidos_novos");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
+                                        .HasConstraintName("fk_negociacao_composicao_carga_negociacao_composicao_carga_negociacao_composicao_carga_json_negociacao_composicao_carga_id");
+                                });
+
+                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCarga.MetaData#Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCargaJson.PedidosRemovidos#Negociacoes.WebApi.Models.Entities.IntPedido", "PedidosRemovidos", b2 =>
+                                {
+                                    b2.Property<int>("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
+                                        .HasColumnType("int");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("int");
+
+                                    b2.Property<int>("IdPedido")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId", "Id")
+                                        .HasName("pk_negociacao_composicao_carga");
+
+                                    b2.ToTable("negociacao_composicao_carga", (string)null);
+
+                                    b2.HasAnnotation("Relational:JsonPropertyName", "pedidos_removidos");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
+                                        .HasConstraintName("fk_negociacao_composicao_carga_negociacao_composicao_carga_negociacao_composicao_carga_json_negociacao_composicao_carga_id");
+                                });
+
+                            b1.OwnsMany("Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCarga.MetaData#Negociacoes.WebApi.Models.Entities.NegociacaoComposicaoCargaJson.SugestoesNovas#Negociacoes.WebApi.Models.Entities.IntSugestao", "SugestoesNovas", b2 =>
+                                {
+                                    b2.Property<int>("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")
+                                        .HasColumnType("int");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("int");
+
+                                    b2.Property<int>("IdSugestao")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId", "Id")
+                                        .HasName("pk_negociacao_composicao_carga");
+
+                                    b2.ToTable("negociacao_composicao_carga", (string)null);
+
+                                    b2.HasAnnotation("Relational:JsonPropertyName", "sugestoes_novas");
 
                                     b2.WithOwner()
                                         .HasForeignKey("NegociacaoComposicaoCargaJsonNegociacaoComposicaoCargaId")

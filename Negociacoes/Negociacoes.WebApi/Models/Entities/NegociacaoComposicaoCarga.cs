@@ -21,12 +21,19 @@ namespace Negociacoes.WebApi.Models.Entities
         public List<IntPedido> PedidosNovos { get; set; }
         public List<IntPedido> PedidosRemovidos { get; set; }
         public List<IntSugestao> SugestoesNovas { get; set; }
+        public List<NegociacaoSugestaoJson> SugestoesGeradasPorNegociacao { get; set; }
     }
 
     public class NegociacaoPedidoJson
     {
         public int IdPedido { get; set; }
         public decimal Quantidade { get; set; }
+    }
+
+    public class NegociacaoSugestaoJson
+    {
+        public decimal Quantidade { get; set; }
+        public string Item { get; set; }
     }
 
     public class IntPedido

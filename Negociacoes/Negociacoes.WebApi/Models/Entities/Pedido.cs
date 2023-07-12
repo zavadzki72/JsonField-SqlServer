@@ -12,5 +12,16 @@ namespace Negociacoes.WebApi.Models.Entities
         public StatusPedido Status { get; set; }
 
         public virtual ComposicaoCarga ComposicaoCarga { get; set; }
+
+        public static Pedido GetFromSugestao(Sugestao sugestao)
+        {
+            return new Pedido
+            {
+                DataEntrega = sugestao.DataEntrega,
+                Item = sugestao.Item,
+                Quantidade = sugestao.Quantidade,
+                Status = StatusPedido.CRIADO
+            };
+        }
     }
 }
