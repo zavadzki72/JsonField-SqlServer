@@ -1,5 +1,6 @@
 ﻿using Negociacoes.WebApi.Enumeradores;
 using Negociacoes.WebApi.Models.Entities;
+using Newtonsoft.Json;
 
 namespace Negociacoes.WebApi.Models.Dtos
 {
@@ -19,7 +20,7 @@ namespace Negociacoes.WebApi.Models.Dtos
 
         public static NegociacaoComposicaoCargaDto GetFromNegociacaoComposicaoCarga(NegociacaoComposicaoCarga negociacaoComposicaoCarga)
         {
-            var metaData = negociacaoComposicaoCarga.MetaData;
+            var metaData = JsonConvert.DeserializeObject<NegociacaoComposicaoCargaJson>(negociacaoComposicaoCarga.MetaData);
 
             var pedidosAtuais = metaData.PedidosAtuais.Select(x => new NegociacaoPedidoDto { IdPedido = x.IdPedido, Quantidade = x.Quantidade }).ToList();
             var sugestoesGeradasPorNegociacao = metaData.SugestoesGeradasPorNegociacao.Select(x => new NegociacaoSugestaoDto { Item = x.Item, Quantidade = x.Quantidade }).ToList();

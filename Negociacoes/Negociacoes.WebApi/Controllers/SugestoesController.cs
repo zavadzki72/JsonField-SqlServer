@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Negociacoes.WebApi.Enumeradores;
 using Negociacoes.WebApi.Infra;
 using Negociacoes.WebApi.Models.Dtos;
 using Negociacoes.WebApi.Models.Entities;
+using System.Data.Entity;
+using System.Data.Entity.Migrations;
 
 namespace Negociacoes.WebApi.Controllers
 {
@@ -49,10 +50,10 @@ namespace Negociacoes.WebApi.Controllers
                 Status = StatusSugestao.CRIADA
             };
 
-            var sugestaoBase = await _applicationContext.AddAsync(sugestao);
+            var sugestaoBase = _applicationContext.Sugestao.Add(sugestao);
             await _applicationContext.SaveChangesAsync();
 
-            return Ok(sugestaoBase.Entity.Id);
+            return Ok(sugestaoBase.Id);
         }
 
         [HttpPatch("suggestions/{id}")]
@@ -74,7 +75,7 @@ namespace Negociacoes.WebApi.Controllers
             data.Item = registerSugestaoDto.Item;
             data.Quantidade = registerSugestaoDto.Quantidade;
 
-            _applicationContext.Update(data);
+            _applicationContext.Sugestao.AddOrUpdate(data);
             await _applicationContext.SaveChangesAsync();
 
             return NoContent();

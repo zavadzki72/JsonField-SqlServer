@@ -10,7 +10,7 @@ namespace Negociacoes.WebApi.Models.Entities
         public string Observacao { get; set; }
         public TipoNegociacaoComposicaoCarga TipoNegociacao { get; set; }
         public TipoUsuario TipoUsuarioResponsavelProximaEtapa { get; set; }
-        public NegociacaoComposicaoCargaJson? MetaData { get; set; }
+        public string MetaData { get; set; }
 
         public virtual ComposicaoCarga ComposicaoCarga { get; set; }
     }

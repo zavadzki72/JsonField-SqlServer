@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Negociacoes.WebApi.Enumeradores;
 using Negociacoes.WebApi.Infra;
 using Negociacoes.WebApi.Models.Dtos;
 using Negociacoes.WebApi.Models.Entities;
+using System.Data.Entity;
+using System.Data.Entity.Migrations;
 
 namespace Negociacoes.WebApi.Controllers
 {
@@ -49,10 +50,10 @@ namespace Negociacoes.WebApi.Controllers
                 Status = StatusPedido.CRIADO
             };
 
-            var pedidoBase = await _applicationContext.AddAsync(newPedido);
+            var pedidoBase = _applicationContext.Pedido.Add(newPedido);
             await _applicationContext.SaveChangesAsync();
 
-            return Ok(pedidoBase.Entity.Id);
+            return Ok(pedidoBase.Id);
         }
 
         [HttpPatch("orders/{id}")]
@@ -74,7 +75,7 @@ namespace Negociacoes.WebApi.Controllers
             data.Item = registerPedidoDto.Item;
             data.Quantidade = registerPedidoDto.Quantidade;
 
-            _applicationContext.Update(data);
+            _applicationContext.Pedido.AddOrUpdate(data);
             await _applicationContext.SaveChangesAsync();
 
             return NoContent();

@@ -1,32 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Negociacoes.WebApi.Models.Entities;
+﻿using Negociacoes.WebApi.Models.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
 
 namespace Negociacoes.WebApi.Infra.Maps
 {
-    public class ComposicaoCargaMap : IEntityTypeConfiguration<ComposicaoCarga>
+    public class ComposicaoCargaMap : EntityTypeConfiguration<ComposicaoCarga>
     {
-        public void Configure(EntityTypeBuilder<ComposicaoCarga> builder)
+        public ComposicaoCargaMap()
         {
-            builder.HasKey(x => x.Id);
+            ToTable("composicao_carga");
 
-            builder.Property(x => x.Id)
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+            HasKey(x => x.Id);
+            Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            
+            Property(x => x.DataEntrega).IsRequired();
+            Property(x => x.Situacao).IsRequired();
+            Property(x => x.Observacao).HasMaxLength(500);
+            Property(x => x.IdUsuario).IsRequired();
 
-            builder.Property(x => x.DataEntrega)
-                .IsRequired();
-
-            builder.Property(x => x.Situacao)
-                .IsRequired();
-
-            builder.Property(x => x.Observacao)
-                .HasMaxLength(500);
-
-            builder.Property(x => x.IdUsuario)
-                .IsRequired();
-
-            builder.HasOne(x => x.Usuario)
+            HasRequired(x => x.Usuario)
                 .WithMany()
                 .HasForeignKey(x => x.IdUsuario);
         }

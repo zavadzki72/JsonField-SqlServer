@@ -1,34 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Negociacoes.WebApi.Models.Entities;
+﻿using Negociacoes.WebApi.Models.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
 
 namespace Negociacoes.WebApi.Infra.Maps
 {
-    public class PedidoMap : IEntityTypeConfiguration<Pedido>
+    public class PedidoMap : EntityTypeConfiguration<Pedido>
     {
-        public void Configure(EntityTypeBuilder<Pedido> builder)
+        public PedidoMap()
         {
-            builder.HasKey(x => x.Id);
+            ToTable("pedido");
 
-            builder.Property(x => x.Id)
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+            HasKey(x => x.Id);
+            Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
-            builder.Property(x => x.IdComposicaoCarga);
+            Property(x => x.IdComposicaoCarga).IsOptional();
+            Property(x => x.Status).IsRequired();
+            Property(x => x.Quantidade).IsRequired();
+            Property(x => x.Item).IsRequired();
+            Property(x => x.DataEntrega).IsRequired();
 
-            builder.Property(x => x.Status)
-                .IsRequired();
-
-            builder.Property(x => x.Quantidade)
-                .IsRequired();
-
-            builder.Property(x => x.Item)
-                .IsRequired();
-
-            builder.Property(x => x.DataEntrega)
-                .IsRequired();
-
-            builder.HasOne(x => x.ComposicaoCarga)
+            HasOptional(x => x.ComposicaoCarga)
                 .WithMany()
                 .HasForeignKey(x => x.IdComposicaoCarga);
         }

@@ -1,44 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Negociacoes.WebApi.Models.Entities;
+﻿using Negociacoes.WebApi.Models.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
 
 namespace Negociacoes.WebApi.Infra.Maps
 {
-    public class NegociacaoComposicaoCargaMap : IEntityTypeConfiguration<NegociacaoComposicaoCarga>
+    public class NegociacaoComposicaoCargaMap : EntityTypeConfiguration<NegociacaoComposicaoCarga>
     {
-        public void Configure(EntityTypeBuilder<NegociacaoComposicaoCarga> builder)
+        public NegociacaoComposicaoCargaMap()
         {
-            builder.HasKey(x => x.Id);
+            ToTable("negociacao_composicao_carga");
 
-            builder.Property(x => x.Id)
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+            HasKey(x => x.Id);
+            Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
-            builder.Property(x => x.IdComposicaoCarga)
-                .IsRequired();
+            Property(x => x.IdComposicaoCarga).IsRequired();
+            Property(x => x.Observacao).IsOptional();
+            Property(x => x.DataEvento).IsRequired();
+            Property(x => x.TipoNegociacao).IsRequired();
+            Property(x => x.MetaData).IsOptional();
 
-            builder.Property(x => x.Observacao);
-
-            builder.Property(x => x.DataEvento)
-                .IsRequired();
-
-            builder.Property(x => x.TipoNegociacao)
-                .IsRequired();
-
-            builder.HasOne(x => x.ComposicaoCarga)
+            HasRequired(x => x.ComposicaoCarga)
                 .WithMany()
                 .HasForeignKey(x => x.IdComposicaoCarga);
-
-            builder.OwnsOne(
-                negociacao => negociacao.MetaData, ownedNavigationBuilder => {
-                    ownedNavigationBuilder.ToJson("meta_data");
-                    ownedNavigationBuilder.OwnsMany(metadata => metadata.PedidosAtuais).HasJsonPropertyName("pedidos_atuais");
-                    ownedNavigationBuilder.OwnsMany(metadata => metadata.PedidosNovos).HasJsonPropertyName("pedidos_novos");
-                    ownedNavigationBuilder.OwnsMany(metadata => metadata.PedidosRemovidos).HasJsonPropertyName("pedidos_removidos");
-                    ownedNavigationBuilder.OwnsMany(metadata => metadata.SugestoesNovas).HasJsonPropertyName("sugestoes_novas");
-                    ownedNavigationBuilder.OwnsMany(metadata => metadata.SugestoesGeradasPorNegociacao).HasJsonPropertyName("sugestoes_geradas_por_negociacao");
-                }
-            );
         }
     }
 }

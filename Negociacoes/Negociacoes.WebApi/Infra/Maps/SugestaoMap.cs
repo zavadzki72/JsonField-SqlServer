@@ -1,30 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Negociacoes.WebApi.Models.Entities;
+﻿using Negociacoes.WebApi.Models.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
 
 namespace Negociacoes.WebApi.Infra.Maps
 {
-    public class SugestaoMap : IEntityTypeConfiguration<Sugestao>
+    public class SugestaoMap : EntityTypeConfiguration<Sugestao>
     {
-        public void Configure(EntityTypeBuilder<Sugestao> builder)
+        public SugestaoMap()
         {
-            builder.HasKey(x => x.Id);
+            ToTable("sugestao");
 
-            builder.Property(x => x.Id)
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+            HasKey(x => x.Id);
+            Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
-            builder.Property(x => x.Status)
-                .IsRequired();
-
-            builder.Property(x => x.Quantidade)
-                .IsRequired();
-
-            builder.Property(x => x.Item)
-                .IsRequired();
-
-            builder.Property(x => x.DataEntrega)
-                .IsRequired();
+            Property(x => x.Status).IsRequired();
+            Property(x => x.Quantidade).IsRequired();
+            Property(x => x.Item).IsRequired();
+            Property(x => x.DataEntrega).IsRequired();
         }
     }
 }

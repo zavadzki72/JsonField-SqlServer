@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Negociacoes.WebApi.Infra;
+﻿using Negociacoes.WebApi.Infra;
+using System.Data.Entity;
 
 namespace Negociacoes.WebApi.Configurations
 {
@@ -9,9 +9,8 @@ namespace Negociacoes.WebApi.Configurations
         {
             var connectionString = configuration.GetConnectionString("SqlServerConnection");
 
-            services.AddDbContext<ApplicationContext>(options => {
-                options.UseSqlServer(connectionString).UseSnakeCaseNamingConvention();
-            }, ServiceLifetime.Scoped);
+            services.AddScoped(_ => new ApplicationContext(connectionString));
+            services.AddScoped<DbContext>(x => x.GetRequiredService<ApplicationContext>());
         }
     }
 }

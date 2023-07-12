@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Negociacoes.WebApi.Infra;
 using Negociacoes.WebApi.Models.Dtos;
 using Negociacoes.WebApi.Models.Entities;
+using System.Data.Entity;
 
 namespace Negociacoes.WebApi.Controllers
 {
@@ -47,10 +47,10 @@ namespace Negociacoes.WebApi.Controllers
                 TipoUsuario = registerUsuarioDto.TipoUsuario
             };
 
-            var usuarioBase = await _applicationContext.AddAsync(usuario);
+            var usuarioBase = _applicationContext.Usuario.Add(usuario);
             await _applicationContext.SaveChangesAsync();
 
-            return Ok(usuarioBase.Entity.Id);
+            return Ok(usuarioBase.Id);
         }
     }
 }

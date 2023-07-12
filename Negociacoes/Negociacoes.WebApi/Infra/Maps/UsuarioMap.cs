@@ -1,27 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Negociacoes.WebApi.Models.Entities;
+﻿using Negociacoes.WebApi.Models.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
 
 namespace Negociacoes.WebApi.Infra.Maps
 {
-    public class UsuarioMap : IEntityTypeConfiguration<Usuario>
+    public class UsuarioMap : EntityTypeConfiguration<Usuario>
     {
-        public void Configure(EntityTypeBuilder<Usuario> builder)
+        public UsuarioMap()
         {
-            builder.HasKey(x => x.Id);
+            ToTable("usuario");
 
-            builder.Property(x => x.Id)
-                .ValueGeneratedOnAdd()
-                .IsRequired();
+            HasKey(x => x.Id);
+            Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
-            builder.Property(x => x.Nome)
-                .IsRequired();
-
-            builder.Property(x => x.Email)
-                .IsRequired();
-
-            builder.Property(x => x.TipoUsuario)
-                .IsRequired();
+            Property(x => x.Nome).IsRequired();
+            Property(x => x.Email).IsRequired();
+            Property(x => x.TipoUsuario).IsRequired();
         }
     }
 }
