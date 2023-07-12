@@ -17,11 +17,11 @@ namespace Negociacoes.WebApi.Models.Entities
 
     public class NegociacaoComposicaoCargaJson
     {
-        public List<NegociacaoPedidoJson> PedidosAtuais { get; set; }
-        public List<IntPedido> PedidosNovos { get; set; }
-        public List<IntPedido> PedidosRemovidos { get; set; }
-        public List<IntSugestao> SugestoesNovas { get; set; }
-        public List<NegociacaoSugestaoJson> SugestoesGeradasPorNegociacao { get; set; }
+        public List<NegociacaoPedidoJson> PedidosAtuais { get; set; } = new();
+        public List<IntPedido> PedidosNovos { get; set; } = new();
+        public List<IntPedido> PedidosRemovidos { get; set; } = new();
+        public List<IntSugestao> SugestoesNovas { get; set; } = new();
+        public List<NegociacaoSugestaoJson> SugestoesGeradasPorNegociacao { get; set; } = new();
     }
 
     public class NegociacaoPedidoJson

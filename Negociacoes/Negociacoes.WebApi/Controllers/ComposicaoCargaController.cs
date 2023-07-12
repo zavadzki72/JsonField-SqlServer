@@ -103,9 +103,13 @@ namespace Negociacoes.WebApi.Controllers
                 return BadRequest($"Composicao com o Id: {id} nao encontrado na base");
             }
 
-            composicao.Situacao = SituacaoComposicaoCarga.CANCELADA;
+            var pedidos = await _applicationContext.Set<Pedido>().Where(x => x.IdComposicaoCarga == composicao.Id).ToListAsync();
 
-            _applicationContext.Update(composicao);
+            composicao.Situacao = SituacaoComposicaoCarga.CANCELADA;
+            foreach(var pedido in pedidos)
+            {
+                pedido.IdComposicaoCarga = null;
+            }
 
             await AddNegociacaoComposicaoCarga(composicao.Id, TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_CANCELADA, TipoUsuario.PRODUTO, "Composição carga cancelada");
 
@@ -179,7 +183,7 @@ namespace Negociacoes.WebApi.Controllers
             return Ok(negociacaoBase.Entity.Id);
         }
 
-        [HttpPost("load-compositions/{loadCompositionId}/negotiations:emergency")]
+        [HttpPost("load-compositions/{loadCompositionId}/negotiations/emergency")]
         public async Task<IActionResult> PostEmergency(int loadCompositionId, [FromBody] RegisterNegociacaoComposicaoCargaDto registerNegociacaoComposicaoCargaDto)
         {
             var composicao = await _applicationContext.Set<ComposicaoCarga>().FirstOrDefaultAsync(x => x.Id == loadCompositionId);
@@ -251,9 +255,24 @@ namespace Negociacoes.WebApi.Controllers
         {
             var metaData = negociacao.MetaData;
 
-            var pedidosParaAtualizar = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosAtuais.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
-            var pedidosParaAdicionar = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosNovos.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
-            var pedidosParaRemover = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosRemovidos.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
+            var pedidosParaAtualizar = new List<Pedido>();
+            var pedidosParaAdicionar = new List<Pedido>();
+            var pedidosParaRemover = new List<Pedido>();
+
+            if(metaData.PedidosAtuais.Any())
+            {
+                pedidosParaAtualizar = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosAtuais.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
+            }
+
+            if(metaData.PedidosNovos.Any())
+            {
+                pedidosParaAdicionar = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosNovos.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
+            }
+
+            if(metaData.PedidosRemovidos.Any())
+            {
+                pedidosParaRemover = await (from p in _applicationContext.Set<Pedido>() where metaData.PedidosRemovidos.Select(x => x.IdPedido).Contains(p.Id) select p).ToListAsync();
+            }
 
             foreach(var pedido in pedidosParaAtualizar)
             {
@@ -282,8 +301,14 @@ namespace Negociacoes.WebApi.Controllers
         private async Task ProcessaSugestoesAceiteNegociacao(NegociacaoComposicaoCarga negociacao)
         {
             var metaData = negociacao.MetaData;
-            
-            var sugestoesParaAdicionar = await (from s in _applicationContext.Set<Sugestao>() where metaData.SugestoesNovas.Select(x => x.IdSugestao).Contains(s.Id) select s).ToListAsync();
+
+            var sugestoesParaAdicionar = new List<Sugestao>();
+
+            if(metaData.SugestoesNovas.Any())
+            {
+                sugestoesParaAdicionar = await (from s in _applicationContext.Set<Sugestao>() where metaData.SugestoesNovas.Select(x => x.IdSugestao).Contains(s.Id) select s).ToListAsync();
+            }
+
             var sugestoesParaCriar = metaData.SugestoesGeradasPorNegociacao.ToList();
 
             foreach(var sugestao in sugestoesParaAdicionar)
