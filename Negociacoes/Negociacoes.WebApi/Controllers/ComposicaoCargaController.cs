@@ -36,10 +36,11 @@ namespace Negociacoes.WebApi.Controllers
             };
 
             var composicaoBase = await _applicationContext.AddAsync(composicao);
+            await _applicationContext.SaveChangesAsync();
 
             var idComposicaoCarga = composicaoBase.Entity.Id;
 
-            await AddNegociacaoComposicaoCarga(idComposicaoCarga, TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_CRIADA, TipoUsuario.PRODUTO);
+            await AddNegociacaoComposicaoCarga(idComposicaoCarga, TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_CRIADA, TipoUsuario.PRODUTO, "Composição carga criada");
 
             await _applicationContext.SaveChangesAsync();
 
@@ -60,7 +61,7 @@ namespace Negociacoes.WebApi.Controllers
 
             _applicationContext.Update(composicao);
 
-            await AddNegociacaoComposicaoCarga(composicao.Id, TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_ENVIADA_FORNECEDOR, TipoUsuario.FORNECEDOR);
+            await AddNegociacaoComposicaoCarga(composicao.Id, TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_ENVIADA_FORNECEDOR, TipoUsuario.FORNECEDOR, "Composição carga enviada fornecedor");
 
             await _applicationContext.SaveChangesAsync();
 
@@ -90,6 +91,18 @@ namespace Negociacoes.WebApi.Controllers
             await _applicationContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("load-compositions/{loadCompositionId}/negotiations")]
+        public async Task<IActionResult> Get(int loadCompositionId)
+        {
+            var negociacao = await _applicationContext.Set<NegociacaoComposicaoCarga>()
+                .Include(x => x.ComposicaoCarga)
+                .FirstOrDefaultAsync(x => x.IdComposicaoCarga == loadCompositionId);
+
+            var negociacaoRetorno = NegociacaoComposicaoCargaDto.GetFromNegociacaoComposicaoCarga(negociacao);
+
+            return Ok(negociacaoRetorno);
         }
 
         [HttpGet("load-compositions/{loadCompositionId}/negotiations/{negotiationId}")]
@@ -123,7 +136,7 @@ namespace Negociacoes.WebApi.Controllers
             {
                 DataEvento = DateTime.Now,
                 IdComposicaoCarga = composicao.Id,
-                Observacao = registerNegociacaoComposicaoCargaDto.Observacao,
+                Observacao = "Composicao carga em negociação",
                 TipoNegociacao = TipoNegociacaoComposicaoCarga.COMPOSICAO_CARGA_EM_NEGOCIACAO,
                 TipoUsuarioResponsavelProximaEtapa = TipoUsuario.FORNECEDOR,
                 MetaData = new NegociacaoComposicaoCargaJson
@@ -156,7 +169,7 @@ namespace Negociacoes.WebApi.Controllers
             throw new NotImplementedException();
         }
 
-        private async Task AddNegociacaoComposicaoCarga(int idComposicaoCarga, TipoNegociacaoComposicaoCarga tipoNegociacaoComposicaoCarga, TipoUsuario tipoUsuarioResponsavelProximaEtapa)
+        private async Task AddNegociacaoComposicaoCarga(int idComposicaoCarga, TipoNegociacaoComposicaoCarga tipoNegociacaoComposicaoCarga, TipoUsuario tipoUsuarioResponsavelProximaEtapa, string observacao)
         {
             var negociacaoComposicaoCarga = new NegociacaoComposicaoCarga
             {
@@ -164,7 +177,7 @@ namespace Negociacoes.WebApi.Controllers
                 DataEvento = DateTime.Now,
                 TipoNegociacao = tipoNegociacaoComposicaoCarga,
                 TipoUsuarioResponsavelProximaEtapa = tipoUsuarioResponsavelProximaEtapa,
-                Observacao = "Composição carga criada"
+                Observacao = observacao
             };
 
             await _applicationContext.AddAsync(negociacaoComposicaoCarga);
